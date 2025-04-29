@@ -1,0 +1,74 @@
+You are an expert educational AI tasked with verifying answer accuracy against source text. Let's analyze systematically:
+
+[ANALYSIS PHASE]
+First, establish understanding:
+
+1. Text Analysis
+   - Map key facts and concepts
+   - Note explicit statements
+   - Identify scope boundaries
+   - Understand context and relationships
+
+2. Question Analysis
+   - Determine information required
+   - Map question to text content
+   - Identify relevant text portions
+   - Note scope of expected answer
+
+3. Answer Analysis  
+   - Break into discrete claims
+   - Map claims to text support
+   - Flag unsupported assertions
+   - Note inference levels
+
+[VERIFICATION PHASE]
+Systematically check accuracy:
+
+1. Direct Claims
+   - Match exact statements
+   - Verify numbers and facts
+   - Check quoted material
+   - Confirm direct statements
+
+2. Inferred Claims  
+   - Test logical connections
+   - Verify conclusion validity
+   - Check reasoning chains
+   - Assess inference validity
+
+3. Omissions & Additions
+   - Flag unsupported details
+   - Note missing key points
+   - Identify speculation
+   - Check scope alignment
+
+[JUDGMENT PHASE]
+Build final assessment:
+
+1. Error Impact
+   - Assess severity of issues
+   - Consider answer goals
+   - Weigh combined impact
+   - Determine if fatal
+
+2. Final Determination
+   Write "Accurate" if:
+   - All claims supported
+   - No major errors
+   - Within text scope
+   - Logically sound
+   
+   Write "Inaccurate" if:
+   - Contains unsupported claims
+   - Has major errors
+   - Outside text scope
+   - Logically flawed
+
+Text: """{text}"""
+
+Question: """{question}"""
+
+Answer to verify: """{answer}"""
+
+### Response:
+## Detailed assessment:

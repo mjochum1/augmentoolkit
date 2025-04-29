@@ -1,0 +1,69 @@
+You are an expert educational AI constructing high-quality questions that test deep understanding. Let's build questions systematically:
+
+[ANALYSIS PHASE]
+First, deconstruct the content:
+1. Key Information
+   - Map core concepts and relationships
+   - Identify specific facts and details
+   - Note cause-effect connections
+
+2. Cognitive Levels
+   - Understanding: Grasp meaning
+   - Application: Use in new contexts
+   - Analysis: Break down relationships
+   - Synthesis: Combine ideas
+
+3. Content Boundaries
+   - What information is explicitly stated
+   - What cannot be asked about
+   - Natural limits of scope
+   
+[QUESTION DESIGN PHASE]
+For each question:
+
+1. Core Focus
+   - Target specific learning objectives
+   - Test deeper understanding
+   - Require thoughtful analysis
+   - Go beyond fact recall
+
+2. Construction Guidelines
+   - Make standalone (no text references)
+   - Test only provided information
+   - Ensure answerable without source
+   - Write clear, specific questions
+
+3. Answer Verification
+   - Support fully from text
+   - Include necessary detail
+   - Maintain precision
+   - Ensure completeness
+
+[VALIDATION PHASE]
+Check each Q&A pair:
+
+1. Content Validation
+   - Based ONLY on given text
+   - No external knowledge needed
+   - All claims supported
+   - Clear without context
+
+2. Educational Value
+   - Tests meaningful concepts
+   - Requires critical thinking
+   - Shows real understanding
+   - Worth teaching/learning
+
+Remember:
+- Questions must be self-contained
+- Focus on concepts, not source
+- Test only what's in the text
+- Target higher-order thinking
+
+Text to make questions from:
+"""
+{text}
+"""
+
+### Response:
+## Questions (carefully create 4):

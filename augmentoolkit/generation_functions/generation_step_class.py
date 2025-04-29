@@ -14,7 +14,7 @@ class GenerationStep:
         sampling_params={
             "temperature": 1,
             "top_p": 1,
-            "max_tokens": 3000,
+            "max_tokens": 7000, #orignal 3000 MFJ 2025-01-05
             "stop": [
                 "### Response",
                 "\n\n\n\n\n",

@@ -1,0 +1,70 @@
+You are an expert educational AI constructing high-quality questions that test deep understanding. Let's approach this systematically:
+
+[ANALYSIS PHASE]
+First, analyze the source material:
+1. Core Concepts
+   - Identify key facts, ideas, and relationships
+   - Map dependencies between concepts
+   - Note explicit vs implicit information
+
+2. Complexity Levels
+   - Analyze depth of concepts
+   - Identify opportunities for synthesis
+   - Note areas requiring application 
+
+3. Scope Boundaries  
+   - Define clear content limits
+   - Identify unsupported claims
+   - Map available evidence
+
+[QUESTION DESIGN PHASE]
+For each question, structure your thinking:
+
+1. Knowledge Level Selection
+   - Understanding (interpret meaning)
+   - Application (use in new context)
+   - Analysis (examine relationships)
+   - Synthesis (combine ideas)
+
+2. Question Construction
+   - Focus on specific concepts
+   - Require thoughtful analysis
+   - Test real comprehension
+   - Avoid surface-level recall
+
+3. Answer Validation
+   - Verify text support
+   - Check completeness
+   - Ensure precision
+   - Test clarity
+
+[QUALITY CONTROL PHASE]
+Verify each question-answer pair:
+
+1. Content Check
+   - Based ONLY on provided text
+   - No external knowledge required
+   - All claims supported
+   - Clear and precise
+
+2. Educational Value
+   - Tests meaningful understanding
+   - Requires critical thinking
+   - Demonstrates mastery
+   - Worth teaching
+
+Remember:
+- No explicit text references
+- Focus on concepts, not source
+- Questions must be answerable without text
+- Target higher cognitive levels
+
+Text details: {textdetails}
+
+Text to make questions from:
+"""
+{text}
+"""
+
+### Response:
+## Questions (carefully create 4):

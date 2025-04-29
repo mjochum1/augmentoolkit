@@ -15,6 +15,7 @@ class EngineWrapper:
         api_key=None,
         base_url=None,
         mode="api",  # can be one of api, aphrodite, llama.cpp, cohere
+        #options={"num_ctx": 4098}, #added MFJ 2025-01-08
         quantization="gptq",  # only needed if using aphrodite mode
     ):
         self.mode = mode
@@ -31,8 +32,10 @@ class EngineWrapper:
             sampling_params["temperature"] = 1
         if "top_p" not in sampling_params:
             sampling_params["top_p"] = 1
-        if "max_tokens" not in sampling_params:
+        if "max_tokens" not in sampling_params: #i think its num_ctx
             sampling_params["max_tokens"] = 3000
+        #if "num_ctx" not in sampling_params:
+         #   sampling_params["num_ctx"] = 4099
         if "stop" not in sampling_params:
             sampling_params["stop"] = []
         if "n_predict" not in sampling_params:
@@ -86,8 +89,10 @@ class EngineWrapper:
             sampling_params["temperature"] = 1
         if "top_p" not in sampling_params:
             sampling_params["top_p"] = 1
-        if "max_tokens" not in sampling_params:
+        if "max_tokens" not in sampling_params: #i think its num_ctx
             sampling_params["max_tokens"] = 3000
+        # if "num_ctx" not in sampling_params:
+        #     sampling_params["num_ctx"] = 4099
         if "stop" not in sampling_params:
             sampling_params["stop"] = []
         
@@ -117,6 +122,7 @@ class EngineWrapper:
                     top_p=sampling_params["top_p"],
                     stop=sampling_params["stop"],
                     max_tokens=sampling_params["max_tokens"],
+                    #num_ctx=sampling_params["num_ctx"],
                     stream=True,
                 )
             async for chunk in stream:

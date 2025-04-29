@@ -21,7 +21,7 @@ import traceback
 import glob
 import yaml
 from datasets import load_dataset
-
+from datetime import datetime #added for the phase 1 tracking debug effort 2025-02-08 MFJ
 
 from augmentoolkit.utils.create_conv_starter import create_conv_starter
 from augmentoolkit.utils.extract_steps import extract_steps
@@ -96,13 +96,16 @@ def convert_logging_to_dataset(input_pth=None, output_pth=None):
         raise Exception("ERROR!! Trying to convert a logging directory to a dataset, when that directory does not exist!")
         
     full_list_of_dicts = []
-    with open(output_file_path, "w") as f:
+    with open(output_file_path, "w", encoding="utf-8") as f: #added utf-8 explicitly 2024-12-22 MFJ
         existing_files = glob.glob(
             os.path.join(output_dir, "*.yaml")
         )
         
-        for file in existing_files:
-            with open(file,'r') as file2:
+        #for file in existing_files:
+        for index, file in enumerate(existing_files, start=1):
+            print(f"Processing file {index}/{len(existing_files)}: {file}")
+
+            with open(file,'r', encoding="utf-8", errors="ignore") as file2: #added utf-8 explicitly and errors ignore 2024-12-22 MFJ
                 file_list_of_dicts = yaml.safe_load(file2)
             # print(file_list_of_dicts)
             
@@ -117,7 +120,7 @@ def convert_logging_to_dataset(input_pth=None, output_pth=None):
     print("...Converted successfully (we think)")
     
     dataset_with_split_output_file_path = os.path.join(obj_conf["PATH"]["OUTPUT"], output_pth + "_DATAGEN_OUTPUT_SPLIT.json")
-    with open(dataset_with_split_output_file_path, "w") as f:
+    with open(dataset_with_split_output_file_path, "w", encoding="utf-8", errors="ignore") as f: #added utf-8 explicitly and errors ignore 2024-12-24 MFJ
             json_to_write = {"train": full_list_of_dicts}
             
             f.write(json.dumps(json_to_write, ensure_ascii=False) + "\n")
@@ -154,7 +157,7 @@ def convert_revised_questions_to_question_generation_training(qa_dicts_by_text, 
             question_generation_prompt = os.path.join(DEFAULT_PROMPTS, "qatuples_gen_no_filenames.yaml")
 
     
-    with open(question_generation_prompt, "r") as f:
+    with open(question_generation_prompt, "r", encoding="utf-8") as f: #explicitly added utf-8 2024-12-22 MFJ
         qgen_prompt_full = yaml.safe_load(f)
         
         sysprompt = qgen_prompt_full[0]["content"]
@@ -162,7 +165,7 @@ def convert_revised_questions_to_question_generation_training(qa_dicts_by_text, 
     
     # revised_questions_output_path = os.path.join(obj_conf["PATH"]["OUTPUT"], "qatuples_revised")
     convos = []
-    with open(output_file_path, 'w') as out_file:
+    with open(output_file_path, 'w', encoding="utf-8") as out_file: #explicitly added utf-8 2024-12-22 MFJ
         for qadict_group in qa_dicts_by_text:
             answer = qadict_group['question_answer_pairs_string']
             text = qadict_group['dict_list'][0]['paragraph']
@@ -184,11 +187,11 @@ def convert_revised_questions_to_question_generation_training(qa_dicts_by_text, 
     if PUSH_TO_HUB: ## IMPORTANT STUFF FOR YOU BEGINS HERE ##
         # temporarily create a json file with splits to load the dataset from
         output_file_path = os.path.join(obj_conf["PATH"]["OUTPUT"], "questions_generation_dataset_split.json")
-        with open(output_file_path, 'w') as out_file_json:
+        with open(output_file_path, 'w', encoding="utf-8") as out_file_json: #explicitly added utf-8 2024-12-22 MFJ
             json.dump({"train": convos},out_file_json)
         dataset = load_dataset("json", data_files=output_file_path, split="train") # THIS APPROACH WORKS!
         
-        with open(output_file_path[:-1], 'w') as out_file_json:
+        with open(output_file_path[:-1], 'w', encoding="utf-8") as out_file_json: #explicitly added utf-8 2024-12-22 MFJ
             json.dump(convo,out_file_json)
         dataset.to_parquet(f"hf://datasets/{HUB_PATH}/data/train-qgen.parquet")
         os.remove(output_file_path)
@@ -258,7 +261,7 @@ class ContextRepairer(PipelineStep):
             prompt_path=context_repairer_path,
             regex=repair_context_regex,
             sampling_params={
-                "max_tokens": 2000,
+                "max_tokens": 7000, #modified from 2000 MFJ 2025-01-05
                 "stop": [
                     "### Response",
                     "\n\n\n\n\n\n\n\n\n\n\n\n\n",
@@ -289,7 +292,7 @@ class ContextRepairer(PipelineStep):
         save_path_file = self.make_save_path_file(idx)
         
         if os.path.exists(save_path_file):
-            with open(save_path_file, "r") as f:
+            with open(save_path_file, "r", encoding="utf-8", errors="ignore") as f: #explicitly added utf-8 2024-12-22 MFJ and ignore errors
                 content = f.read()  # Read the file once and store its content
                 print(save_path_file)
                 if content == "failed":
@@ -321,23 +324,66 @@ class ContextRepairer(PipelineStep):
         
         os.makedirs(self.save_path_dir, exist_ok=True)
         if output_list[idx]:
-            with open(self.make_save_path_file(idx), "w") as f:
-                f.write(json.dumps(output_list[idx], ensure_ascii=False))
+            with open(self.make_save_path_file(idx), "w", encoding="utf-8") as f: #explicitly added utf-8 2024-12-23
+                f.write(json.dumps(output_list[idx], ensure_ascii=False)) 
         else:
-            with open(self.make_save_path_file(idx), "w") as f:
+            with open(self.make_save_path_file(idx), "w", encoding="utf-8", errors="ignore") as f: #explicitly added utf-8 2025-04-22
                 f.write("failed")
-    
-context_repairer = ContextRepairer()
+
+#modified for debugging Phase 3 2025-02-11 MFJ, associated function moved down towards the bottom
+#context_repairer = ContextRepairer()
 
 # Postprocessing function for question/answer validation
+# removed this version of the code block for debugging Phase 3 2025-02-11 MFJ
+""" async def repair_qatuple_context(
+    idx,
+    dict,
+    engine_wrapper,
+    vetted_qa_dicts,
+): """
+#modified for debugging Phase 3 2025-02-11 MFJ
+#await context_repairer.run(idx, dict, engine_wrapper, output_list=vetted_qa_dicts)
 async def repair_qatuple_context(
     idx,
     dict,
     engine_wrapper,
     vetted_qa_dicts,
 ):
-    await context_repairer.run(idx, dict, engine_wrapper, output_list=vetted_qa_dicts)
+    context_repairer = ContextRepairDebugStep()
+    
+    result, full_output = await context_repairer.generate(
+        paragraph=dict["paragraph"],
+        question=dict["question"],
+        answer=dict["answer"],
+        paragraph_idx=dict.get("paragraph_idx"),
+        question_idx=dict.get("question_idx")
+    )
 
+    revision_id = make_id()
+
+    # Save intermediates
+    intermediates_path = os.path.join(OUTPUT_DIR, "question_context_revision_generations", "revised_qatuples_intermediates")
+    os.makedirs(intermediates_path, exist_ok=True)
+    write_output_to_file(full_output, intermediates_path, revision_id)
+
+    if result and isinstance(result.get('context_repair'), tuple):
+        dict['question'] = result['context_repair'][0]
+        dict['answer'] = result['context_repair'][1]
+        vetted_qa_dicts.append(dict)
+    else:
+        vetted_qa_dicts.append(None)
+
+    # Use PipelineStep's save path methods
+    save_path = os.path.join(OUTPUT_DIR, "question_context_revision_generations", "revised_qatuples_saved")
+    os.makedirs(save_path, exist_ok=True)
+    save_file = os.path.join(save_path, f"{idx}.json")  # This matches the original naming pattern
+
+    if dict in vetted_qa_dicts:
+        with open(save_file, "w", encoding="utf-8") as f:
+            json.dump(dict, f, indent=4)
+    else:
+        with open(save_file, "w", encoding="utf-8", errors="ignore") as f: #explicitly added utf-8 2025-04-22
+            f.write("failed")
 
 def parse_answer_accuracy_validation(response):
     determination_pattern = re.compile(
@@ -385,11 +431,12 @@ async def vet_answer_accuracy_loop(
         re.DOTALL,
     )
     # TODO performance improvement could be gained by using async for to do the checks simultaneously
-    answer_accuracy_checker = GenerationStep(
+    #answer_accuracy_checker = GenerationStep( #modified for debugging Phase 2 2025-02-12 MFJ
+    answer_accuracy_checker = ValidationDebugStep(
         prompt_path=prompt_path_ans_accuracy_check,
         regex=check_ans_accuracy_regex,
         sampling_params={
-            "max_tokens": 1500,
+            "max_tokens": 7000, #modified from 1500 MFJ 2025-01-05
             "stop": [
                 "### Response",
                 "\n\n\n\n\n",
@@ -429,9 +476,12 @@ async def vet_answer_accuracy_loop(
             # f"\n\nACCURACY CALL CHECK ANSWER: {qtuple[0]}, context: {qtuple[2]}, retries: {total_retries}, dissenting reasoning: {dissenting_reasoning}"
             # )
             judgement, answer_accuracy_output = await answer_accuracy_checker.generate(
+                validation_type="answer_accuracy", #added for debugging Phase 2 2025-02-12 MFJ
                 paragraph=qa_dict["paragraph"],
                 question=qa_dict["question"],
                 answer=qa_dict["answer"],
+                paragraph_idx=qa_dict["paragraph_idx"], #added for debugging Phase 2 2025-02-12 MFJ
+                question_idx=qa_dict["question_idx"], #added for debugging Phase 2 2025-02-12 MFJ
             )
             write_output_to_file(
                 answer_accuracy_output,
@@ -456,7 +506,7 @@ async def vet_answer_accuracy_loop(
             return qa_dict
         else:
             print("Answer accuracy validation failed! Tossing")
-            with open(file_path, "w") as file:
+            with open(file_path, "w", encoding="utf-8") as file: #explicitly added utf-8 2024-12-22
                     file.write("failed")
             return
     except Exception as e:
@@ -515,11 +565,12 @@ async def vet_answer_relevance_loop(
     else:
         prompt_path_ans_relevancy_check = prompt_path_ans_relevancy_check + ".yaml"
 
-    answer_relevancy_checker = GenerationStep(
+    #answer_relevancy_checker = GenerationStep( #modified for debugging Phase 2 2025-02-12 MFJ
+    answer_relevancy_checker = ValidationDebugStep(
         prompt_path=prompt_path_ans_relevancy_check,
         regex=check_ans_relevancy_regex,
         sampling_params={
-            "max_tokens": 1500,
+            "max_tokens": 7000, #modified from 1500 MFJ 2025-01-05
             "stop": [
                 "### Response",
                 "\n\n\n\n\n\n",
@@ -544,6 +595,21 @@ async def vet_answer_relevance_loop(
         use_stop=USE_STOP
     )
 
+    # Check if previous output exists
+    if file_path and os.path.exists(file_path):
+        with open(file_path, "r") as file:
+            previous_output = file.read()
+            if previous_output:
+                try:
+                    qa_dict = json.loads(previous_output)
+                    print("Loaded previous output from file.")
+                except json.JSONDecodeError:
+                    print("Failed to decode previous output. Starting fresh.")
+            else:
+                print("Previous output file is empty. Starting fresh.")
+    else:
+        print("No previous output file found. Starting fresh.")
+
     # Resume normal control flow code
     try:
         passed_checks = 0
@@ -556,9 +622,12 @@ async def vet_answer_relevance_loop(
                 judgement,
                 answer_relevancy_output,
             ) = await answer_relevancy_checker.generate(
+                validation_type="answer_relevancy", #added for debugging Phase 2 2025-02-12 MFJ
                 paragraph=qa_dict["paragraph"],
                 question=qa_dict["question"],
                 answer=qa_dict["answer"],
+                paragraph_idx=qa_dict["paragraph_idx"], #added for debugging Phase 2 2025-02
+                question_idx=qa_dict["question_idx"], #added for debugging Phase 2 2025-02
             )
             write_output_to_file(
                 answer_relevancy_output,
@@ -666,11 +735,11 @@ async def vet_question_loop( # NOTE adding the pipelinestep class would make thi
         else:
             prompt_path_q_check = prompt_path_q_check + ".yaml"
 
-        question_checker = GenerationStep(
+        question_checker = ValidationDebugStep( #changed for debugging 2025-02-09 MFJ
             prompt_path=prompt_path_q_check,
             regex=check_q_regex,
             sampling_params={
-                "max_tokens": 1500,
+                "max_tokens": 7000, #modified from 1500 MFJ 2025-01-05
                 "stop": [
                     "### Response",
                     "\n\n\n\n\n",
@@ -727,8 +796,18 @@ async def vet_question_loop( # NOTE adding the pipelinestep class would make thi
                 # print(
                 #     f"\n\nQUESTION CALL CHECK ANSWER: {qtuple[0]}, context: {qtuple[2]}, retries: {total_retries}, dissenting reasoning: {dissenting_reasoning}"
                 # )
-                judgement, check_q_output = await question_checker.generate(paragraph=qa_dict["paragraph"], question=qa_dict["question"], answer=qa_dict["answer"])
-
+                
+                #this version below getting commented out and replaced with the version for additional debugging 2025-02-09 MFJ
+                #judgement, check_q_output = await question_checker.generate(paragraph=qa_dict["paragraph"], question=qa_dict["question"], answer=qa_dict["answer"])
+                judgement, check_q_output = await question_checker.generate(
+                    validation_type="question_check",
+                    paragraph=qa_dict["paragraph"],
+                    question=qa_dict["question"],
+                    answer=qa_dict["answer"],
+                    paragraph_idx=qa_dict["paragraph_idx"],
+                    question_idx=qa_dict["question_idx"]
+                )
+                
                 # Now we need to put the judgement together into the format it expects it to be in
 
                 write_output_to_file(
@@ -806,9 +885,7 @@ async def vet_question_loop( # NOTE adding the pipelinestep class would make thi
 
 ### Question Generation Section
 
-def extract_questions_from_response(
-    generation,
-):  # TODO extract to non-controlflow file
+def extract_questions_from_response(generation):  # TODO extract to non-controlflow file
     # replace any instances of **QUESTION 1:** with **QUESTION:**
     # in fact, for any digit, replace with nothing
     generation = re.sub(r"\*\*QUESTION \d:\*\*", "**QUESTION:**", generation)
@@ -834,7 +911,7 @@ class QuestionGenerationStep(PipelineStep): # like before, but with the new syst
             prompt_path=prompt_path_qatuples_gen,
             regex=qatuples_gen_regex,
             sampling_params={
-                "max_tokens": 2000,
+                "max_tokens": 7000, #modified from 2000 MFJ 2025-01-05
                 "stop": [
                     "### Response",
                     "\n\n\n\n\n",
@@ -847,7 +924,7 @@ class QuestionGenerationStep(PipelineStep): # like before, but with the new syst
                     "<|start_header_id|>",
                     "<|end_header_id|>",
                 ],
-                "temperature": 0.8,
+                "temperature": 0.5, #reasoning model change to 0.6 from 0.8
                 # top_k=-1,
                 "top_p": 1,
                 # min_p=0.5,
@@ -861,7 +938,12 @@ class QuestionGenerationStep(PipelineStep): # like before, but with the new syst
             save_path="raw_qatuples_saved",
             result_key="not_used",
         )
-        
+
+        #This is where we are creating the debug log path 2025-02-08 MFJ
+        self.debug_log_path = os.path.join(OUTPUT_DIR, "debug_tracking")
+        os.makedirs(self.debug_log_path, exist_ok=True)
+        self.debug_file = os.path.join(self.debug_log_path, "phase1_generation_debug.jsonl")
+    
     def read_previous_output(self, idx, output_list):
         existing_files = glob.glob(
             os.path.join(self.save_path_dir, f"para_{idx}_*.json")
@@ -878,12 +960,51 @@ class QuestionGenerationStep(PipelineStep): # like before, but with the new syst
     
     def generate_data(self, processed_data, engine_wrapper):
         self.question_group_id = make_id()
+        print(f"[DEBUG] Input data being sent to LLM: {json.dumps(processed_data, indent=2)}")
+
         return super().generate_data(processed_data, engine_wrapper)
+    
+    #This is where we are creating the debug file 2025-02-08 MFJ
+    def log_generation_debug(self, generation_id, paragraph_idx, result, success):
+        
+        para_file_details = []
+        if result:
+            for i in range(len(result)):
+                para_file = f"para_{paragraph_idx}_q_{i}.json"
+                try:
+                    with open(os.path.join(self.save_path_dir, para_file), 'r') as f:
+                        para_data = json.load(f)
+                        para_file_details.append({
+                            "filename": para_file,
+                            "stored_uuid": para_data.get("question_group_id")
+                        })
+                except:
+                    para_file_details.append({
+                        "filename": para_file,
+                        "stored_uuid": None
+                    })
+
+        debug_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "generation_file_uuid": generation_id,
+            "paragraph_idx": paragraph_idx,
+            "num_questions_generated": len(result) if result else 0,
+            "success": success,
+            "para_file_ids": [f"para_{paragraph_idx}_q_{i}.json" for i in range(len(result))] if result else []
+        }
+        # Append to debug file in JSONL format
+        with open(self.debug_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(debug_entry) + '\n')
     
     def save(self, result=None, full_output=None, idx=None, output_list=None, input_data=None):
 
         id = make_id()
         write_output_to_file(full_output, self.intermediate_output_path_full, id)
+        
+        #This is where we are creating the debug file 2025-02-08 MFJ
+        success = bool(result and len(result) > 0)
+        self.log_generation_debug(id, idx, result, success)
+
         qdicts = [
             {
                 "paragraph": input_data['paragraph'],
@@ -905,8 +1026,381 @@ class QuestionGenerationStep(PipelineStep): # like before, but with the new syst
             with open(file_path, "w") as file:
                 json.dump(qdict, file, indent=4)
 
+#added for debugging of phase 2 2025-02-12 MFJ
+class ValidationDebugStep(GenerationStep):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.debug_log_path = os.path.join(OUTPUT_DIR, "debug_tracking")
+        os.makedirs(self.debug_log_path, exist_ok=True)
+        self.debug_file = os.path.join(self.debug_log_path, "phase2_validation_debug.jsonl")
+        self.validation_cache = {}  # Store intermediate validation results
+
+    def log_validation_debug(self, validation_type, validation_id, paragraph_idx, question_idx, success, response):
+        cache_key = f"para_{paragraph_idx}_q_{question_idx}"
+        
+        if cache_key not in self.validation_cache:
+            self.validation_cache[cache_key] = {
+                "timestamp": datetime.now().isoformat(),
+                "paragraph_idx": paragraph_idx,
+                "question_idx": question_idx,
+                "validations": {},
+                "source_para_file": f"para_{paragraph_idx}_q_{question_idx}.json"
+            }
+            
+            # Try to get source para file details
+            try:
+                #para_file_path = os.path.join(OUTPUT_DIR, "qatuples_filtered", f"para_{paragraph_idx}_q_{question_idx}.json")
+                para_file_path = os.path.join(OUTPUT_DIR, "question_context_revision_generations", "revised_qatuples_saved", f"para_{paragraph_idx}_q_{question_idx}.json")
+                if os.path.exists(para_file_path):
+                    with open(para_file_path, 'r') as f:
+                        content = f.read()
+                        if content == "failed":
+                            self.validation_cache[cache_key]["source_para_details"] = "failed"
+                        else:
+                            para_data = json.load(f)
+                            self.validation_cache[cache_key]["source_para_details"] = {
+                                "stored_uuid": para_data.get("question_group_id"),
+                                "file_size": os.path.getsize(para_file_path)
+                            }
+            except Exception as e:
+                self.validation_cache[cache_key]["source_para_details"] = f"error: {str(e)}"
+
+        # Add this validation step
+        self.validation_cache[cache_key]["validations"][validation_type] = {
+            "validation_file_uuid": validation_id,
+            "success": success,
+            "timestamp": datetime.now().isoformat()
+        }
+
+        # Write to debug file if this was the last validation step or if validation failed
+        if validation_type == "answer_accuracy" or not success:
+            with open(self.debug_file, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(self.validation_cache[cache_key]) + '\n')
+            # Clear from cache after writing
+            del self.validation_cache[cache_key]
+
+    async def generate(self, validation_type="question_check", paragraph_idx=None, question_idx=None, **kwargs):
+        result, full_output = await super().generate(**kwargs)
+        success = result[0] if isinstance(result, tuple) else False
+        validation_id = make_id()
+        self.log_validation_debug(validation_type, validation_id, paragraph_idx, question_idx, success, full_output)
+        return result, full_output
+
+class ContextRepairer(PipelineStep):
+    def __init__(self):
+        super().__init__(
+            prompt_folder=PROMPTS_DIR,
+            default_prompt_folder=DEFAULT_PROMPTS,
+            prompt_path=context_repairer_path,
+            regex=repair_context_regex,
+            sampling_params={
+                "max_tokens": 7000,  # Modified from 2000
+                "stop": [
+                    "### Response",
+                    "\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                    "</s>",
+                    "# Input:",
+                    "[INST]",
+                    "### Instruction",
+                    "[INST",
+                    "<|eot_id|>",
+                    "<|start_header_id|>",
+                    "<|end_header_id|>",
+                ],
+                "temperature": 0.2,
+            },
+            output_dir=OUTPUT_DIR,
+            output_subdir="question_context_revision_generations",
+            intermediate_output_path="revised_qatuples_intermediates",
+            save_path="revised_qatuples_saved",
+            output_processor=extract_reasoning_from_context_check,
+            result_key="not gonna be used",
+            use_stop=USE_STOP,
+            completion_mode=COMPLETION_MODE,
+        )
+        # Add debug logging setup
+        self.debug_log_path = os.path.join(OUTPUT_DIR, "debug_tracking")
+        os.makedirs(self.debug_log_path, exist_ok=True)
+        self.debug_file = os.path.join(self.debug_log_path, "phase3_context_revision_debug.jsonl")
+        
+    def log_revision_debug(self, revision_id, paragraph_idx, question_idx, success, response):
+        debug_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "validation_type": "context_revision",
+            "revision_file_uuid": revision_id,
+            "paragraph_idx": paragraph_idx,
+            "question_idx": question_idx,
+            "success": success,
+            "source_para_file": f"para_{paragraph_idx}_q_{question_idx}.json"
+        }
+        
+        try:
+            para_file_path = os.path.join(OUTPUT_DIR, "qatuples_filtered", f"para_{paragraph_idx}_q_{question_idx}.json")
+            if os.path.exists(para_file_path):
+                with open(para_file_path, 'r') as f:
+                    content = f.read()
+                    if content == "failed":
+                        debug_entry["source_para_details"] = "failed"
+                    else:
+                        para_data = json.load(f)
+                        debug_entry["source_para_details"] = {
+                            "stored_uuid": para_data.get("question_group_id"),
+                            "file_size": os.path.getsize(para_file_path)
+                        }
+        except Exception as e:
+            debug_entry["source_para_details"] = f"error: {str(e)}"
+        
+        with open(self.debug_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(debug_entry) + '\n')
+        
+    def read_previous_output(self, idx, output_list):
+        save_path_file = self.make_save_path_file(idx)
+        
+        if os.path.exists(save_path_file):
+            with open(save_path_file, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()  # Read the file once and store its content
+                print(save_path_file)
+                if content == "failed":
+                    print("Loaded failed file")
+                    output_list[idx] = None
+                    return True
+                print("Loaded file:")
+                print(content)
+                try:
+                    data = json.loads(content)  # Convert the string back to JSON
+                    output_list[idx] = data
+                    return True
+                except json.JSONDecodeError:
+                    print("JSON decode error with the contents:", content)
+        return False
+    
+    def save(self, result=None, full_output=None, idx=None, output_list=None, input_data=None):
+        revision_id = make_id()
+        success = isinstance(result[0], str) if result else False
+        
+        # Log debug info
+        self.log_revision_debug(
+            revision_id,
+            input_data.get('paragraph_idx'),
+            input_data.get('question_idx'),
+            success,
+            full_output
+        )
+        
+        if isinstance(result[0], str):
+            new_question = result[0]
+            new_answer = result[1]
+            
+            output_list[idx]['question'] = new_question
+            output_list[idx]['answer'] = new_answer
+        elif not result[0]:
+            output_list[idx] = None
+        
+        id = make_id()
+        write_output_to_file(full_output, self.intermediate_output_path_full, id)
+        
+        os.makedirs(self.save_path_dir, exist_ok=True)
+        if output_list[idx]:
+            with open(self.make_save_path_file(idx), "w", encoding="utf-8") as f:
+                f.write(json.dumps(output_list[idx], ensure_ascii=False))
+        else:
+            with open(self.make_save_path_file(idx), "w") as f:
+                f.write("failed")
+
+context_repairer = ContextRepairer()
+
+async def repair_qatuple_context(
+    idx,
+    dict,
+    engine_wrapper,
+    vetted_qa_dicts,
+):
+    print(f"\nDebug - Before repair - Input dict: {dict}")
+    await context_repairer.run(idx, dict, engine_wrapper, output_list=vetted_qa_dicts)
+    print(f"Debug - After repair - vetted_qa_dicts[{idx}]: {vetted_qa_dicts[idx]}")
+
+async def generate(self, **kwargs):
+    print("Debug: Starting generate method")
+    print(f"Debug: kwargs received: {kwargs}")
+    
+    # Handle prompt path extension based on completion mode
+    if self.completion_mode:
+        prompt_path = self.prompt_path + ".txt"
+    else:
+        prompt_path = self.prompt_path + ".yaml"
+    
+    # Save original prompt_path
+    original_prompt_path = self.prompt_path
+    self.prompt_path = prompt_path
+    
+    try:
+        # Format data for generate_data
+        processed_data = {
+            "paragraph": kwargs.get("paragraph"),
+            "question": kwargs.get("question"),
+            "answer": kwargs.get("answer")
+        }
+        print(f"Debug: processed_data: {processed_data}")
+        
+        generated = await self.generate_data(processed_data, None)
+        print(f"Debug: generate_data returned: {generated}")
+        
+        if generated is None:
+            print("Debug: generate_data returned None!")
+            return None, None
+            
+        result, full_output = generated
+        success = isinstance(result[0], str) if isinstance(result, tuple) else False
+        revision_id = make_id()
+        
+        # Extract paragraph_idx and question_idx
+        paragraph_idx = kwargs.get("paragraph_idx")
+        question_idx = kwargs.get("question_idx")
+        
+        self.log_revision_debug(revision_id, paragraph_idx, question_idx, success, full_output)
+        return result, full_output
+    finally:
+        # Restore original prompt_path
+        self.prompt_path = original_prompt_path
+        
+class ContextRepairDebugStep(PipelineStep):
+    def __init__(self):
+        super().__init__(
+            prompt_folder=PROMPTS_DIR,
+            default_prompt_folder=DEFAULT_PROMPTS,
+            prompt_path=context_repairer_path,
+            regex=repair_context_regex,
+            sampling_params={
+                "max_tokens": 7000,
+                "stop": [
+                    "### Response",
+                    "\n\n\n\n\n\n\n\n\n\n\n\n\n",
+                    "</s>",
+                    "# Input:",
+                    "[INST]",
+                    "### Instruction",
+                    "[INST",
+                    "<|eot_id|>",
+                    "<|start_header_id|>",
+                    "<|end_header_id|>",
+                ],
+                "temperature": 0.2,
+            },
+            output_dir=OUTPUT_DIR,
+            output_subdir="question_context_revision_generations",
+            output_processor=extract_reasoning_from_context_check,
+            intermediate_output_path="revised_qatuples_intermediates",
+            save_path="revised_qatuples_saved",
+            result_key="context_repair",
+            use_stop=USE_STOP,
+            completion_mode=COMPLETION_MODE
+        )
+        self.debug_log_path = os.path.join(OUTPUT_DIR, "debug_tracking")
+        os.makedirs(self.debug_log_path, exist_ok=True)
+        self.debug_file = os.path.join(self.debug_log_path, "phase3_context_revision_debug.jsonl")
+
+    def log_revision_debug(self, revision_id, paragraph_idx, question_idx, success, response):
+        debug_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "validation_type": "context_revision",
+            "revision_file_uuid": revision_id,
+            "paragraph_idx": paragraph_idx,
+            "question_idx": question_idx,
+            "success": success,
+            "source_para_file": f"para_{paragraph_idx}_q_{question_idx}.json"
+        }
+        
+        try:
+            para_file_path = os.path.join(OUTPUT_DIR, "qatuples_filtered", f"para_{paragraph_idx}_q_{question_idx}.json")
+            if os.path.exists(para_file_path):
+                with open(para_file_path, 'r') as f:
+                    content = f.read()
+                    if content == "failed":
+                        debug_entry["source_para_details"] = "failed"
+                    else:
+                        para_data = json.load(f)
+                        debug_entry["source_para_details"] = {
+                            "stored_uuid": para_data.get("question_group_id"),
+                            "file_size": os.path.getsize(para_file_path)
+                        }
+        except Exception as e:
+            debug_entry["source_para_details"] = f"error: {str(e)}"
+        
+        with open(self.debug_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(debug_entry) + '\n')
+
+
+
+# The function that uses the class
+async def repair_qatuple_context(
+    idx,
+    dict,
+    engine_wrapper,
+    vetted_qa_dicts,
+):
+    context_repairer = ContextRepairDebugStep()
+    
+    result = await context_repairer.run(
+        idx=idx,
+        input_data=dict,
+        engine_wrapper=engine_wrapper,
+        output_list=vetted_qa_dicts
+    )
+
+    if result and isinstance(result.get('context_repair'), tuple):
+        dict['question'] = result['context_repair'][0]
+        dict['answer'] = result['context_repair'][1]
+        vetted_qa_dicts.append(dict)
+    else:
+        vetted_qa_dicts.append(None)
+
+    # Use PipelineStep's save path methods
+    save_path = os.path.join(OUTPUT_DIR, "question_context_revision_generations", "revised_qatuples_saved")
+    os.makedirs(save_path, exist_ok=True)
+    save_file = os.path.join(save_path, f"{idx}.json")
+
+    if dict in vetted_qa_dicts:
+        with open(save_file, "w", encoding="utf-8") as f:
+            json.dump(dict, f, indent=4)
+    else:
+        with open(save_file, "w") as f:
+            f.write("failed")
+
+    return result
+
 question_generation_step = QuestionGenerationStep() 
 
+
+#modified for debugging Phase 3 2025-02-11 MFJ    
+""" context_repairer = ContextRepairDebugStep(
+    prompt_path=context_repairer_path,
+    regex=repair_context_regex,
+    sampling_params={
+        "max_tokens": 7000,
+        "stop": [
+            "### Response",
+            "\n\n\n\n\n\n\n\n\n\n\n\n\n",
+            "</s>",
+            "# Input:",
+            "[INST]",
+            "### Instruction",
+            "[INST",
+            "<|eot_id|>",
+            "<|start_header_id|>",
+            "<|end_header_id|>",
+        ],
+        "temperature": 0.2,
+    },
+    completion_mode=COMPLETION_MODE,
+    retries=3,
+    engine_wrapper=engine_wrapper,
+    logging_level=logging_level,
+    output_processor=extract_reasoning_from_context_check,
+    prompt_folder=PROMPTS_DIR,
+    default_prompt_folder=DEFAULT_PROMPTS,
+    use_stop=USE_STOP
+)
+ """
 # Question generation
 async def generate_qadicts_from_para(
     idx,
@@ -962,7 +1456,7 @@ def judge_paragraph_processor(
     elif "suitable" in determination.lower():
         return True
 
-class JudgeParagraphStep(PipelineStep):
+class JudgeParagraphStep(PipelineStep): #this is the wrapper for the first LLM call i believe
     def __init__(self): # instead of overriding init, just pass these when instantiating the class
         super().__init__(
             prompt_folder=PROMPTS_DIR,
@@ -970,7 +1464,11 @@ class JudgeParagraphStep(PipelineStep):
             prompt_path=judgement_prompt_path,
             regex=judgement_regex,
             sampling_params={
-                "max_tokens": 1450,
+                "max_tokens": 7000, #"max_tokens": 7000, #1450 modified MFJ 2025-01-05
+                "num_ctx": 4097, #added to see if i can fix the context MFJ 2025-01-08
+                # "options": {
+                #     "num_ctx": 4097
+                # },
                 # "min_p": 0.4,
                 "stop": [
                     "### Response",
@@ -1084,6 +1582,12 @@ async def filter_all_questions(
             judge_paragraph_step.run(idx, input_data=p, output_list=judged_worthy_for_questions, engine_wrapper=engine_wrapper)
             for idx, p in enumerate(paragraphs_processed[:subset_size])
         ]
+    async def rtwl(task):
+        print(f"Running task: {task}")
+        result = await task
+        print(f"Task result: {result}")
+        return result
+
     limited_tasks = [rtwl(task) for task in tasks]
     for future in tqdmasyncio.tqdm.as_completed(limited_tasks):
         await future
@@ -1118,7 +1622,7 @@ class ConversationGenerator(PipelineStep):
             prompt_path=multi_turn_conversation_prompt_path,
             regex=conversation_regex,
             sampling_params={
-                "max_tokens": 2000,
+                "max_tokens": 7000, #modified from 2000 MFJ 2025-01-05
                 "stop": [
                     "### Response",
                     "\n\n\n\n\n",
@@ -1134,7 +1638,7 @@ class ConversationGenerator(PipelineStep):
                     "<|start_header_id|>",
                     "<|end_header_id|>",
                 ],
-                "temperature": 0.8,
+                "temperature": 0.5, #reasoning model change to 0.6 from 0.8
                 # "top_k": -1,
                 "top_p": 1,
                 # "min_p": 0.6,
@@ -1171,7 +1675,7 @@ def convert_directory_to_list(directory_path):
     for filename in os.listdir(directory_path):  # for each file
         if filename.endswith(".json"):  # if it's a conversation file
             filepath = os.path.join(directory_path, filename)  # get the path
-            with open(filepath, "r") as file:  # open it
+            with open(filepath, "r", encoding="utf-8", errors="ignore") as file:  # open it #explicitly set encoding to utf-8 2025-04-22 MFJ
                 try:
                     data_dict = json.load(file)  # load its data
                     master_list.append(
@@ -1184,7 +1688,7 @@ def convert_directory_to_list(directory_path):
     for filename in os.listdir(directory_path):  # for each file
         if filename.endswith(".json"):  # if it's a conversation file
             filepath = os.path.join(directory_path, filename)  # get the path
-            with open(filepath, "r") as file:  # open it
+            with open(filepath, "r", encoding="utf-8", errors="ignore") as file:  # open it #explicitly set encoding to utf-8 2025-04-22 MFJ
                 try:
                     data_dict = json.load(file)  # load its data
                     dialogues = process_multiturn_functions.extract_conversation(
@@ -1264,13 +1768,13 @@ def convert_directory_to_list(directory_path):
     
         # Write the master list to a new .jsonl file
     write_1 = obj_conf["PATH"]["OUTPUT"] + "/master_list.jsonl"
-    with open(write_1, "w") as file:
+    with open(write_1, "w", encoding="utf-8", errors="ignore") as file: #explicitly set encoding to utf-8 2025-04-22 MFJ
         for item in master_list:
             file.write(json.dumps(item, ensure_ascii=False) + "\n")
 
     # Process and push simplified_list (no RAG)
     write_2 = obj_conf["PATH"]["OUTPUT"] + "/simplified_data_no_rag.jsonl"
-    with open(write_2, "w") as file:
+    with open(write_2, "w", encoding="utf-8", errors="ignore") as file: #explicitly set encoding to utf-8 2025-04-22 MFJ
         for item in simplified_list:
             file.write(json.dumps(item, ensure_ascii=False) + "\n")
             
@@ -1292,12 +1796,12 @@ def convert_directory_to_list(directory_path):
 
     # Process and push simplified_rag_list (RAG)
     write_3 = obj_conf["PATH"]["OUTPUT"] + "/simplified_data_rag.jsonl"
-    with open(write_3, "w") as file:
+    with open(write_3, "w", encoding="utf-8", errors="ignore") as file: #explicitly set encoding to utf-8 2025-04-22 MFJ
         for item in simplified_rag_list:
             file.write(json.dumps(item, ensure_ascii=False) + "\n")
             
     write_4 = obj_conf["PATH"]["OUTPUT"] + "/plain_qa_list.jsonl"
-    with open(write_4, "w") as file:
+    with open(write_4, "w", encoding="utf-8", errors="ignore") as file: #explicitly set encoding to utf-8 2025-04-22 MFJ
         for item in plain_qa_list:
             file.write(json.dumps(item, ensure_ascii=False) + "\n")
     if PUSH_TO_HUB:

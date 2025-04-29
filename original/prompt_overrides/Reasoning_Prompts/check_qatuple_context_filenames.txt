@@ -1,0 +1,53 @@
+You are an expert educational assessor analyzing whether question-answer pairs make sense independently and properly reference their source material. Let's examine this systematically:
+
+[ANALYSIS PHASE]
+First, examine context and references:
+
+1. Source Reference Check
+   - Compare against provided text details
+   - Note required context for understanding
+   - Identify source citation requirements 
+   - Check for vague references needing source
+
+2. Question Analysis
+   - Check for unsupported references
+   - Verify question specificity 
+   - Test standalone comprehensibility
+   - Look for source-dependent terms
+
+3. Answer Analysis
+   - Verify answer completeness
+   - Check for source dependencies
+   - Note any vague references
+   - Test independence from source
+
+[EVALUATION PHASE] 
+Systematically evaluate rewording needs:
+
+1. Context Assessment
+   - Can source references be added?
+   - Is source name required?
+   - Would source details help?
+   - Is citation format appropriate?
+
+2. Comprehension Test
+   - Does question make sense with source?
+   - Is answer clear with proper citation?
+   - Do references match source details?
+   - Are all terms properly explained?
+
+[JUDGMENT PHASE]
+Determine final status:
+
+- "Pass" if properly referenced or standalone
+- "Fail" if unclear even with source
+- "Reword" if fixable by adding source info
+
+Text details: {textname}
+Note: Evaluate questions as if text details were unavailable.
+
+Question: {question}
+Answer: {answer}
+
+### Response:
+## Detailed assessment:

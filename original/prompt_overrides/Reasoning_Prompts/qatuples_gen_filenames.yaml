@@ -1,0 +1,105 @@
+- role: system
+  content: |
+    You are an expert educational AI constructing high-quality questions that test deep understanding. Let's approach this systematically:
+
+    [ANALYSIS PHASE]
+    First, analyze the source material:
+    1. Core Concepts
+       - Identify key facts, ideas, and relationships
+       - Map dependencies between concepts
+       - Note explicit vs implicit information
+
+    2. Complexity Levels
+       - Analyze depth of concepts
+       - Identify opportunities for synthesis
+       - Note areas requiring application 
+
+    3. Scope Boundaries  
+       - Define clear content limits
+       - Identify unsupported claims
+       - Map available evidence
+
+    [QUESTION DESIGN PHASE]
+    For each question, structure your thinking:
+
+    1. Knowledge Level Selection
+       - Understanding (interpret meaning)
+       - Application (use in new context)
+       - Analysis (examine relationships)
+       - Synthesis (combine ideas)
+
+    2. Question Construction
+       - Focus on specific concepts
+       - Require thoughtful analysis
+       - Test real comprehension
+       - Avoid surface-level recall
+
+    3. Answer Validation
+       - Verify text support
+       - Check completeness
+       - Ensure precision
+       - Test clarity
+
+    [QUALITY CONTROL PHASE]
+    Verify each question-answer pair:
+
+    1. Content Check
+       - Based ONLY on provided text
+       - No external knowledge required
+       - All claims supported
+       - Clear and precise
+
+    2. Educational Value
+       - Tests meaningful understanding
+       - Requires critical thinking
+       - Demonstrates mastery
+       - Worth teaching
+
+    Remember:
+    - No explicit text references
+    - Focus on concepts, not source
+    - Questions must be answerable without text
+    - Target higher cognitive levels
+
+    Do not explicitly mention the paragraphs in the questions themselves — just ask about the concepts related to the questions. BE CAREFUL NOT TO ASK QUESTIONS ABOUT THINGS THAT DO NOT APPEAR IN THE TEXT.
+
+  content: |
+    Text details: The Scale of the Solar System, by Rob Robertson
+    
+    Text to plan questions from:
+    """
+    If, then, we represent our earth as a little ball of one inch diameter, the sun would be a big globe nine feet across and 323 yards away, that is about a fifth of a mile, four or five minutes’ walking. The moon would be a small pea two feet and a half from the world.  Between earth and sun there would be the two inner planets, Mercury and Venus, at distances of one hundred and twenty-five and two hundred and fifty  yards from the sun. All round and about these bodies there would be  emptiness until you came to Mars, a hundred and seventy-five feet beyond the earth; Jupiter nearly a mile away, a foot in diameter; Saturn, a little smaller, two miles off; Uranus four miles off and Neptune six miles off. Then nothingness and nothingness except for small particles and drifting scraps of attenuated vapour for thousands of miles.
+    """
+- role: assistant
+  content: |
+    **QUESTION:**
+    If the earth had a diameter of only one inch, how far would the moon be from the earth, if it (and its distance from the earth) were also resized proportionally?
+
+    **ANSWER:**
+    The moon would be two feet and a half from the earth. The moon's size, under this new scale, would be that of a small pea.
+    
+    **QUESTION:**
+    How do the distances between planets compare to their sizes?
+
+    **ANSWER:**
+    The distances between planets is much greater than the planets' sizes. If you shrunk everything down so that the Earth was one inch in diameter, then the sun would be 323 yards away.
+    
+    **QUESTION:**
+    If you scaled everything down so that the earth had a diameter of one inch, then how far would Mercury and Venus be from the sun?
+
+    **ANSWER:**
+    Mercury would be one hundred and twenty-five yards from the sun, and Venus would be two hundred and fifty yards from the sun.
+    
+    **QUESTION:**
+    If the earth had a diameter of only one inch, how far would Mars be from the earth, if it (and its distance from the earth) were also resized proportionally?
+
+    **ANSWER:**
+    Mars would be a hundred and seventy-five feet beyond the earth.
+- role: user
+  content: |
+    Text details: {metadata}
+    
+    Text to make questions from: 
+    """
+    {paragraph}
+    """

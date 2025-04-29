@@ -60,7 +60,7 @@ class PipelineStep:
     def read_previous_output(self, idx, output_list):
         save_path_file = self.make_save_path_file(idx)
         if os.path.exists(save_path_file):
-            with open(save_path_file, "r") as f:
+            with open(save_path_file, "r", encoding="utf-8", errors="ignore") as f: #added explicit for utf-8 and the errors="ignore" for other weird character 2024-12-24 MFJ
                 output_data = json.load(f)
             output_list.append(output_data)
             return True
@@ -69,7 +69,9 @@ class PipelineStep:
     
     async def generate_data(self, processed_data, engine_wrapper):
         try:
-                
+            
+            print(f"Generating data with processed_data={processed_data}")
+
             generator = GenerationStep(
                 prompt_path=self.prompt_path,
                 default_prompt_folder=self.default_prompt_folder,
@@ -85,15 +87,20 @@ class PipelineStep:
             )
             
             # print(processed_data)
-            
+            # print(f"[DEBUG] Prompt path: {self.prompt_path}")
+            # print(f"[DEBUG] Sampling parameters: {self.sampling_params}")
+            # print(f"[DEBUG] Static arguments: {self.static_arguments}")
+            # #print(f"[DEBUG] Engine wrapper request: {json.dumps(request_payload, indent=2)}")
+            # print(f"[DEBUG] Processed data: {json.dumps(processed_data, indent=2)}")
+            # print(f"[DEBUG] Static arguments: {json.dumps(self.static_arguments, indent=2)}")
+
             result, full_output = await generator.generate(**processed_data, **self.static_arguments)
-            
+            #print(f"Generated result={result}, full_output={full_output}")
+
             return result, full_output
         except Exception as e:
             print(e)
             traceback.print_exc()
-    
-    
     
     def save(self, result=None,
     full_output=None,
@@ -108,7 +115,7 @@ class PipelineStep:
         write_output_to_file(full_output, self.intermediate_output_path_full, id)
         
         os.makedirs(self.save_path, exist_ok=True)
-        with open(save_path_file, "w") as f:
+        with open(save_path_file, "w", encoding="utf-8") as f: #ensure utf-8 2024-12-23 MFJ
             f.write(json.dumps(output_data, ensure_ascii=False))
         
         output_list.append(output_data)
@@ -120,12 +127,17 @@ class PipelineStep:
     output_list=None,
       ): # things that are args here are produced during inference time. Including config settings.
         
+        print(f"Running task with idx={idx}, input_data={input_data}")
+
         read_previous_item = self.read_previous_output(idx, output_list)
         if read_previous_item:
+            print(f"Task {idx} skipped, output already exists.")
+
             return
         
         processed_data = self.process_input_data(input_data)
-        
+        print(f"Processed data for idx={idx}: {processed_data}")
+
         complete = False
         max_retries = self.max_retries
         while not complete and max_retries > 0:
@@ -138,9 +150,19 @@ class PipelineStep:
                 traceback.print_exc() 
             max_retries -= 1
         if not complete: # consider raising here and catching in the actual pipeline.
+            print(f"Task {idx} failed after {self.max_retries} retries.")
+    
             return
         
-        return self.save(result=result, full_output=full_output, idx=idx, output_list=output_list, input_data=input_data)
-        
+        #return self.save(result=result, full_output=full_output, idx=idx, output_list=output_list, input_data=input_data)
+        output_data = self.save(
+            result=result,
+            full_output=full_output,
+            idx=idx,
+            output_list=output_list,
+            input_data=input_data,
+        )
+        print(f"Task {idx} completed, output_data={output_data}")
+        return output_data        
 
         

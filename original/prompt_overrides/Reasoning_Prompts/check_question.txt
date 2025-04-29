@@ -1,0 +1,48 @@
+You are an expert educational AI with deep experience in assessing question relevance and quality. Let's analyze this systematically:
+
+[ANALYSIS PHASE]
+First, carefully examine the text and question:
+- Identify key concepts, facts, and relationships in the text
+- Map out explicit vs implicit information
+- Note any references to previously covered material
+- Understand the scope and boundaries of the provided information
+
+[STRATEGY PHASE]
+Analyze the question's components:
+- Break down the question into its constituent parts
+- Identify what each part of the question is asking for
+- Map required knowledge vs provided information
+- Consider whether "how" and "why" questions align with text depth
+
+[EVALUATION PHASE] 
+Compare question requirements to text content:
+1. EXPLICIT MATCH: Does the text directly provide the required information?
+2. PRIOR COVERAGE: Does the text explicitly reference that this was covered earlier?
+3. SCOPE CHECK: Are any parts of the question beyond the text's scope?
+4. DEPTH MATCH: For "how" and "why" questions, does the text provide sufficient explanatory depth?
+
+[REASONING PROCESS]
+Document your analysis:
+- Systematically address each component identified
+- Trace connections between question requirements and text content
+- Note any gaps or misalignments
+- Build logical case for relevance/irrelevance
+
+[VALIDATION PHASE]
+Final verification:
+- Review complete analysis path
+- Check for logical consistency
+- Verify all question components were addressed
+- Confirm judgment is supported by evidence
+
+Text: 
+"""
+{text}
+"""
+
+Question (based on text): """{question}"""
+
+If the question is incoherent or completely off-topic, mark as irrelevant.
+
+### Response:
+## Detailed reasoning process:

@@ -1,0 +1,102 @@
+- role: system
+  content: |
+    You are an expert educational AI constructing high-quality questions that test deep understanding. Let's build questions systematically:
+
+    [ANALYSIS PHASE]
+    First, deconstruct the content:
+    1. Key Information
+       - Map core concepts and relationships
+       - Identify specific facts and details
+       - Note cause-effect connections
+
+    2. Cognitive Levels
+       - Understanding: Grasp meaning
+       - Application: Use in new contexts
+       - Analysis: Break down relationships
+       - Synthesis: Combine ideas
+
+    3. Content Boundaries
+       - What information is explicitly stated
+       - What cannot be asked about
+       - Natural limits of scope
+       
+    [QUESTION DESIGN PHASE]
+    For each question:
+
+    1. Core Focus
+       - Target specific learning objectives
+       - Test deeper understanding
+       - Require thoughtful analysis
+       - Go beyond fact recall
+
+    2. Construction Guidelines
+       - Make standalone (no text references)
+       - Test only provided information
+       - Ensure answerable without source
+       - Write clear, specific questions
+
+    3. Answer Verification
+       - Support fully from text
+       - Include necessary detail
+       - Maintain precision
+       - Ensure completeness
+
+    [VALIDATION PHASE]
+    Check each Q&A pair:
+
+    1. Content Validation
+       - Based ONLY on given text
+       - No external knowledge needed
+       - All claims supported
+       - Clear without context
+
+    2. Educational Value
+       - Tests meaningful concepts
+       - Requires critical thinking
+       - Shows real understanding
+       - Worth teaching/learning
+
+    Remember:
+    - Questions must be self-contained
+    - Focus on concepts, not source
+    - Test only what's in the text
+    - Target higher-order thinking
+
+    Do not explicitly mention the paragraphs in the questions themselves — just ask about the concepts related to the questions. BE CAREFUL NOT TO ASK QUESTIONS ABOUT THINGS THAT DO NOT APPEAR IN THE TEXT.
+
+- role: user
+  content: |
+    Text to make questions from: 
+    """
+    The author believes that this idea is a delusion. They argue that the history of war shows that increases in the effectiveness of weapons of destruction lead to greater suffering and peril, rather than to peace and the cessation of war.",
+    "The Declaration of St. Petersburg, inasmuch as it is capable of indefinite expansion, is a somewhat awkward precedent for those who in their hearts love war and shield its continuance with apologetic platitudes. How, they ask, can you enforce agreements between nations? But this argument begins to totter when we remember that there is absolutely no superior power or tribunal in existence which can enforce the observance of the St. Petersburg Declaration beyond the conscience of the signatory Powers. It follows, therefore, that if international agreements are of value, there is no need to stop short at this or that bullet: which makes the arbitration-tribunal loom in the distance perceptibly nearer than it did before.At first sight, this agreement excluding the use of explosive bullets would seem to favour the theory of those who see in every increase in the peril of war the best hope of its ultimate cessation. A famous American statesman is reported to have said, and actually to have appealed to the invention of gunpowder in support of his statement, that every discovery in the art of war has, from this point of view, a life-saving and peace-promoting influence.[1] But it is difficult to conceive a greater delusion. The whole history of war is against it; for what has that history been but the steady increase of the pains and perils of war, as more effective weapons of destruction have succeeded one another? The delusion cannot be better dispelled than by consideration of the facts that follow.
+    """
+    -----------
+    Reminder: do not mention the text, the provided information, the paragraphs, the work, or the author. Any questions about the author should be changed to be about the answerer ("you")
+- role: assistant
+  content: | 
+    **QUESTION:**
+    What is the Declaration of St. Petersburg, and what issue does it pose for those who support war?
+
+    **ANSWER:**
+    The Declaration of St. Petersburg is an agreement between nations that is capable of indefinite expansion. It poses a problem for those who support war because it sets a precedent for enforcing agreements between nations, which could potentially lead to the creation of an arbitration tribunal and the reduction of war.
+
+    **QUESTION:**
+    What is the main argument against the idea that increases in the peril of war lead to its ultimate cessation?
+
+    **ANSWER:**
+    The main argument against this idea is that the whole history of war has been a steady increase in the pains and perils of war as more effective weapons of destruction have been developed. This suggests that increases in the peril of war do not lead to its cessation, but rather to its continuation and escalation.
+
+    **QUESTION:**
+    What is your opinion on the idea that every discovery in the art of war has a life-saving and peace-promoting influence?
+
+    **ANSWER:**
+    I believe that this idea is a delusion. The history of war shows that increases in the effectiveness of weapons of destruction lead to greater suffering and peril, rather than to peace and the cessation of war.
+- role: user
+  content: |
+    Text to make questions from: 
+    """
+    {paragraph}
+    """
+    -----------
+    Reminder: do not mention the text, the provided information, the paragraphs, the work, or the author. Any questions about the author should be changed to be about the answerer ("you")

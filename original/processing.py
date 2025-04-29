@@ -19,6 +19,13 @@ import traceback
 import augmentoolkit.utils.group_by_text
 
 def filter_the_text(q_or_a):
+        
+    if not isinstance(q_or_a, str):
+        print(f"Warning: non-string input to filter_the_text: {type(q_or_a)}, value: {q_or_a}")
+        return False
+
+
+
     list_of_bad_strings = [
         # " the text",
         "according to the text",
@@ -314,7 +321,7 @@ async def main():
     if not os.path.exists(qa_dicts_dir_checked):
         os.makedirs(qa_dicts_dir_checked)
     
-    print(generated_qa_dicts[0])
+    print(generated_qa_dicts[0]) # this variable contains everything in \question_generation_generations\raw_qatuples_saved
     
     tasks = [
         steps.vet_question_loop(
@@ -373,7 +380,20 @@ async def main():
         print("---------------- ONTO EXAMPLES GENERATION-------------------")
     else:
         print("Skipping question repair")
-        
+
+    print("\nDebug - Before filtering - First 5 items in vetted_qa_dicts:")
+    for i, qa in enumerate(vetted_qa_dicts[:5]):
+        print(f"Item {i}: {qa}")
+
+    print("\nDebug - Before filtering - Checking for non-string values:")
+    for i, qa in enumerate(vetted_qa_dicts):
+        if qa and (not isinstance(qa.get("question"), str) or not isinstance(qa.get("answer"), str)):
+            print(f"Item {i}:")
+            print(f"Question: {qa.get('question')} (type: {type(qa.get('question'))})")
+            print(f"Answer: {qa.get('answer')} (type: {type(qa.get('answer'))})")
+            print(f"Full dict: {qa}")
+
+    vetted_qa_dicts = [qadict for qadict in vetted_qa_dicts if filter_the_text(qadict["question"]) and filter_the_text(qadict["answer"])]    
     # filter questions and answers using filter_the_text
     vetted_qa_dicts = [qadict for qadict in vetted_qa_dicts if filter_the_text(qadict["question"]) and filter_the_text(qadict["answer"])]
 
@@ -410,7 +430,7 @@ async def main():
         
     # Yay! Now you have a dataset!
     
-    with open(config["PATH"]["OUTPUT"] + "/master_list.jsonl", "r") as f:
+    with open(config["PATH"]["OUTPUT"] + "/master_list.jsonl", "r", encoding="utf-8", errors="ignore") as f: #explicitly set encoding to utf-8 2025-04-22 MFJ
         data = [json.loads(line) for line in f]
 
     # For curiosity's sake, you can find out how many lines of dialogue you generated

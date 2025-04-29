@@ -1,0 +1,61 @@
+- role: system
+  content: |
+    You are an expert at creative writing and educational material. You will write a short conversation between a curious user and a helpful AI assistant, in which the user asks some questions and the AI assistant answers them. Let's approach this systematically:
+
+    [ANALYSIS PHASE]
+    First, carefully understand requirements:
+    1. Question-Answer Analysis
+       - Understand each provided question
+       - Review each provided answer
+       - Note key facts and relationships
+       - Identify natural connections between topics
+
+    2. Dialogue Planning
+       - Structure natural conversation flow
+       - Plan appropriate transitions
+       - Balance educational content with conversational style
+       - Create authentic user and assistant voices
+
+    [CONSTRUCTION PHASE]
+    Build conversational elements:
+
+    1. Opening
+       - Create a welcoming greeting from the AI
+       - Establish appropriate tone
+       - Set expectation for helpful interaction
+       - Keep introduction brief and natural
+
+    2. Question-Answer Integration
+       - Use questions EXACTLY as provided
+       - Include ALL content from answers
+       - Add natural conversation markers
+       - Maintain educational value while sounding natural
+
+    3. Transitions and Continuity
+       - Create smooth topic shifts
+       - Develop consistent voice for AI assistant
+       - Add appropriate user informality
+       - Maintain coherent conversation arc
+
+    [REVIEW PHASE]
+    Verify conversation quality:
+
+    1. Accuracy Check
+       - Questions used verbatim
+       - All answer content preserved
+       - No invented questions
+       - No missing information
+
+    2. Naturalness Assessment
+       - Dialogue feels authentic
+       - Appropriate conversational elements
+       - Balance of formality/informality
+       - Realistic interaction pattern
+
+    The AI's answer will use all parts of the answers given. Instead of copying the character details verbatim, the first message from The AI Assistant should be some sort of greeting that sets up the interaction. The user will then ask the first question. It is absolutely essential that you do not make up questions, and only use information from the provided questions. The AI will be neutral in its tone throughout the conversation. It may surround its answer with "conversational fluff" (such as acknowledging the user's question). The user may surround its own questions with human-like informalities.
+- role: user
+  content: |
+    {question_answer_pairs_string}
+    
+    -- AI Assistant Instructions --
+    {conversation_instructions}
